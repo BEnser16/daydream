@@ -24,3 +24,14 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.input {
+  @apply w-full px-3 py-2 border rounded-md;
+}
+.textarea {
+  @apply w-full px-3 py-2 border rounded-md min-h-[80px];
+}
+.btn {
+  @apply px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700;
+}
+
