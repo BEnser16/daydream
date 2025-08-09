@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabaseServer';
 
 // GET: Fetch a single character card
 export async function GET(request, { params }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { id } = params;
 
   const { data, error } = await supabase
@@ -21,7 +21,7 @@ export async function GET(request, { params }) {
 
 // PUT: Update a single character card
 export async function PUT(request, { params }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { id } = params;
   const { name, appearance, abilities, background, tags, notes } = await request.json();
 
@@ -49,7 +49,7 @@ export async function PUT(request, { params }) {
 
 // DELETE: Delete a single character card
 export async function DELETE(request, { params }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { id } = params;
 
   const { error } = await supabase
