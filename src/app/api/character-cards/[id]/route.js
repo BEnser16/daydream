@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabaseServer';
+import { openai } from '@/lib/openai';
 
 // GET: Fetch a single character card
 export async function GET(request, { params }) {
@@ -21,9 +22,21 @@ export async function GET(request, { params }) {
 
 // PUT: Update a single character card
 export async function PUT(request, { params }) {
+ 
+  const {id} = await params;
+  if (!id) {
+    return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+  }
+  
   const supabase = await createClient();
-  const { id } = params;
   const { name, appearance, abilities, background, tags, notes } = await request.json();
+  // emedding
+  const embedding = await openai.embeddings.create({
+    model: 'text-embedding-3-small',
+    input: `${name} ${appearance} ${abilities} ${background} ${notes}`
+  })
+
+  const vector = embedding.data[0].embedding
 
   const { data, error } = await supabase
     .from('character_cards')
@@ -34,7 +47,8 @@ export async function PUT(request, { params }) {
       background,
       tags,
       notes,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      embedding: vector
     })
     .eq('id', id)
     .select()
@@ -50,7 +64,7 @@ export async function PUT(request, { params }) {
 // DELETE: Delete a single character card
 export async function DELETE(request, { params }) {
   const supabase = await createClient();
-  const { id } = params;
+  const { id } = await params;
 
   const { error } = await supabase
     .from('character_cards')

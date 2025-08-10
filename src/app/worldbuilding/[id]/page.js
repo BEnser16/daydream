@@ -13,7 +13,13 @@ export default function WorldbuildingEditorPage() {
     const fetchBlock = async () => {
       const res = await fetch(`/api/worldbuilding-blocks/${id}`)
       const data = await res.json()
-      setBlock(data)
+      setBlock({
+        ...data,
+        title: data.title || '',
+        content: data.content || '',
+        category: data.category || '',
+        tags: data.tags || [],
+      });
     }
     fetchBlock()
   }, [id])

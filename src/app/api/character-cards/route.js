@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from '@/lib/supabaseServer';
+import { openai } from "@/lib/openai";
 
 // GET 請求：處理取得角色卡
 export async function GET(request) {
@@ -28,7 +29,16 @@ export async function GET(request) {
 // POST 請求：處理新增角色卡
 export async function POST(request) {
   const supabase = await createClient();
+  
   const { user_id, name, appearance, abilities, background, tags, notes } = await request.json()
+
+  // emedding
+  const embedding = await openai.embeddings.create({
+    model: 'text-embedding-3-small',
+    input: `${name} ${appearance} ${abilities} ${background} ${notes}`
+  })
+
+  const vector = embedding.data[0].embedding
 
   const { data, error } = await supabase
     .from('character_cards')
@@ -39,7 +49,8 @@ export async function POST(request) {
         abilities,
         background,
         tags,
-        notes
+        notes,
+        vector
       })
     .select()
     .single()

@@ -22,12 +22,12 @@ export default function GeneratePage() {
   async function sendMessage() {
     if (!inputValue.trim() || isLoading) return
 
-    // 2. 清空輸入框
+    // 清空輸入框
     const userPrompt = inputValue
     setInputValue('')
     setIsLoading(true)
 
-    // 1. 新增使用者訊息到聊天視窗
+    // 新增使用者訊息到聊天視窗
     const userMessage = { id: crypto.randomUUID(), sender: 'user', text: inputValue }
     setMessages((prev) => [...prev, userMessage])
     
@@ -36,25 +36,19 @@ export default function GeneratePage() {
     setMessages(prev => [...prev, { id: loadingId, sender: 'ai', text: '生成中...' }])
 
     try {
-      // 3. 呼叫 GPT API
+      // 呼叫 GPT API
       const res = await fetch("/api/gpt/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
           {
-          prompt: userPrompt,
-          characterCard: {
-              "name": "",
-              "appearance": "",
-              "abilities": "",
-              "background": ""
-          },
-          worldInfo: ""
+            prompt: userPrompt
           }
         ),
       });
 
       if (!res.ok) {
+        console.error("API 呼叫失敗:", res.statusText);
         throw new Error('API 呼叫失敗')
       }
 

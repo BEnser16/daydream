@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabaseServer';
+import { openai } from '@/lib/openai';
 
 // GET: Fetch a single worldbuilding block
 export async function GET(request, { params }) {
   const supabase = await createClient();
-  const { id } = params;
+  const { id } = await params;
 
   const { data, error } = await supabase
     .from('worldbuilding_blocks')
@@ -22,12 +23,20 @@ export async function GET(request, { params }) {
 // PUT: Update a single worldbuilding block
 export async function PUT(request, { params }) {
   const supabase = await createClient();
-  const { id } = params;
+  const { id } = await params;
   const { title, content, category, tags } = await request.json();
+
+  // emedding
+    const embedding = await openai.embeddings.create({
+      model: 'text-embedding-3-small',
+      input: `${title} ${content}`
+    })
+  
+    const vector = embedding.data[0].embedding
 
   const { data, error } = await supabase
     .from('worldbuilding_blocks')
-    .update({ title, content, category, tags, updated_at: new Date().toISOString() })
+    .update({ title, content, category, tags, updated_at: new Date().toISOString(), embedding: vector })
     .eq('id', id)
     .select()
     .single();
@@ -42,7 +51,7 @@ export async function PUT(request, { params }) {
 // DELETE: Delete a single worldbuilding block
 export async function DELETE(request, { params }) {
   const supabase = await createClient();
-  const { id } = params;
+  const { id } = await params;
 
   const { error } = await supabase
     .from('worldbuilding_blocks')

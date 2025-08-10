@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabaseServer';
+import { openai } from '@/lib/openai';
 
 // GET: Fetch a list of worldbuilding blocks
 export async function GET(request) {
@@ -29,10 +30,17 @@ export async function GET(request) {
 export async function POST(request) {
   const supabase = await createClient();
   const { user_id, title, content, category, tags } = await request.json();
+  // emedding
+  const embedding = await openai.embeddings.create({
+    model: 'text-embedding-3-small',
+    input: `${title} ${content}`
+  })
+
+  const vector = embedding.data[0].embedding
 
   const { data, error } = await supabase
     .from('worldbuilding_blocks')
-    .insert({ user_id, title, content, category, tags })
+    .insert({ user_id, title, content, category, tags, vector })
     .select()
     .single();
 
